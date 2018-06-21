@@ -26,6 +26,7 @@ QT_BEGIN_NAMESPACE
 class Ui_MainWindow
 {
 public:
+    QAction *actionToolbox;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuOpenDesigner;
@@ -36,13 +37,16 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(458, 353);
+        MainWindow->resize(497, 381);
+        actionToolbox = new QAction(MainWindow);
+        actionToolbox->setObjectName(QStringLiteral("actionToolbox"));
+        actionToolbox->setCheckable(true);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 458, 23));
+        menuBar->setGeometry(QRect(0, 0, 497, 23));
         menuOpenDesigner = new QMenu(menuBar);
         menuOpenDesigner->setObjectName(QStringLiteral("menuOpenDesigner"));
         MainWindow->setMenuBar(menuBar);
@@ -54,6 +58,7 @@ public:
         MainWindow->setStatusBar(statusBar);
 
         menuBar->addAction(menuOpenDesigner->menuAction());
+        menuOpenDesigner->addAction(actionToolbox);
 
         retranslateUi(MainWindow);
 
@@ -63,7 +68,8 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
-        menuOpenDesigner->setTitle(QApplication::translate("MainWindow", "OpenDesigner", Q_NULLPTR));
+        actionToolbox->setText(QApplication::translate("MainWindow", "toolbox", Q_NULLPTR));
+        menuOpenDesigner->setTitle(QApplication::translate("MainWindow", "tools", Q_NULLPTR));
     } // retranslateUi
 
 };
