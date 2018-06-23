@@ -5,12 +5,12 @@
 #include <QMouseEvent>
 #include <map>
 #include <QRadioButton>
+#include "cwindowcallback.h"
+#include "types.h"
 
 namespace Ui {
 class CToolBox;
 }
-
-typedef enum EEditMode{eSelect, eObject, eLine}EEditMode;
 
 class CToolBox : public QDialog
 {
@@ -22,6 +22,8 @@ protected:
 
 public:
     explicit CToolBox(QWidget *parent = 0);
+    EEditMode getEditMode(){return this->m_edtMode;}
+    void setEventCallback(CWindowCallback* callback){this->callback = callback;}
     ~CToolBox();
 
 private slots:
@@ -34,6 +36,7 @@ private:
     int m_iMouseY;
     EEditMode m_edtMode;
     std::map<EEditMode, QRadioButton*> m_mapRadioButtons;
+    CWindowCallback *callback;
 };
 
 #endif // CTOOLBOX_H

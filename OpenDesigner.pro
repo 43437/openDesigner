@@ -14,10 +14,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    ctoolbox.cpp
+    ctoolbox.cpp \
+    crectobj.cpp \
+    cwindowcallback.cpp
 
 HEADERS  += mainwindow.h \
-    ctoolbox.h
+    ctoolbox.h \
+    crectobj.h \
+    cwindowcallback.h \
+    types.h
 
 FORMS    += mainwindow.ui \
     ctoolbox.ui

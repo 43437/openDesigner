@@ -6,7 +6,8 @@ CToolBox::CToolBox(QWidget *parent) :
     ui(new Ui::CToolBox),
     m_iMouseX(0),
     m_iMouseY(0),
-    m_edtMode(eSelect)
+    m_edtMode(eSelect),
+    callback(0)
 {
     ui->setupUi(this);
 //    this->setWindowFlags(Qt::FramelessWindowHint);
@@ -61,5 +62,9 @@ void CToolBox::on_radioBtn_clicked()
             m_edtMode = it->first;
             break;
         }
+    }
+    if(NULL != callback)
+    {
+        callback->CallBack();
     }
 }
