@@ -29,7 +29,7 @@ public:
     QAction *actionToolbox;
     QWidget *centralWidget;
     QMenuBar *menuBar;
-    QMenu *menuOpenDesigner;
+    QMenu *menu;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -37,7 +37,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(497, 381);
+        MainWindow->resize(400, 300);
         actionToolbox = new QAction(MainWindow);
         actionToolbox->setObjectName(QStringLiteral("actionToolbox"));
         actionToolbox->setCheckable(true);
@@ -46,9 +46,9 @@ public:
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 497, 23));
-        menuOpenDesigner = new QMenu(menuBar);
-        menuOpenDesigner->setObjectName(QStringLiteral("menuOpenDesigner"));
+        menuBar->setGeometry(QRect(0, 0, 400, 23));
+        menu = new QMenu(menuBar);
+        menu->setObjectName(QStringLiteral("menu"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -57,8 +57,8 @@ public:
         statusBar->setObjectName(QStringLiteral("statusBar"));
         MainWindow->setStatusBar(statusBar);
 
-        menuBar->addAction(menuOpenDesigner->menuAction());
-        menuOpenDesigner->addAction(actionToolbox);
+        menuBar->addAction(menu->menuAction());
+        menu->addAction(actionToolbox);
 
         retranslateUi(MainWindow);
 
@@ -69,7 +69,7 @@ public:
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
         actionToolbox->setText(QApplication::translate("MainWindow", "toolbox", Q_NULLPTR));
-        menuOpenDesigner->setTitle(QApplication::translate("MainWindow", "tools", Q_NULLPTR));
+        menu->setTitle(QApplication::translate("MainWindow", "\345\267\245\345\205\267", Q_NULLPTR));
     } // retranslateUi
 
 };

@@ -1,16 +1,16 @@
 /****************************************************************************
-** Meta object code from reading C++ file 'crectobj.h'
+** Meta object code from reading C++ file 'cshape.h'
 **
 ** Created by: The Qt Meta Object Compiler version 67 (Qt 5.6.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "../crectobj.h"
+#include "../model/cshape.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
-#error "The header file 'crectobj.h' doesn't include <QObject>."
+#error "The header file 'cshape.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
 #error "This file was generated using the moc from 5.6.3. It"
 #error "cannot be used with the include files from this version of Qt."
@@ -18,25 +18,25 @@
 #endif
 
 QT_BEGIN_MOC_NAMESPACE
-struct qt_meta_stringdata_CRectObj_t {
+struct qt_meta_stringdata_CShape_t {
     QByteArrayData data[1];
-    char stringdata0[9];
+    char stringdata0[7];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_CRectObj_t, stringdata0) + ofs \
+    qptrdiff(offsetof(qt_meta_stringdata_CShape_t, stringdata0) + ofs \
         - idx * sizeof(QByteArrayData)) \
     )
-static const qt_meta_stringdata_CRectObj_t qt_meta_stringdata_CRectObj = {
+static const qt_meta_stringdata_CShape_t qt_meta_stringdata_CShape = {
     {
-QT_MOC_LITERAL(0, 0, 8) // "CRectObj"
+QT_MOC_LITERAL(0, 0, 6) // "CShape"
 
     },
-    "CRectObj"
+    "CShape"
 };
 #undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_CRectObj[] = {
+static const uint qt_meta_data_CShape[] = {
 
  // content:
        7,       // revision
@@ -52,7 +52,7 @@ static const uint qt_meta_data_CRectObj[] = {
        0        // eod
 };
 
-void CRectObj::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+void CShape::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     Q_UNUSED(_o);
     Q_UNUSED(_id);
@@ -60,26 +60,26 @@ void CRectObj::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
     Q_UNUSED(_a);
 }
 
-const QMetaObject CRectObj::staticMetaObject = {
-    { &QObject::staticMetaObject, qt_meta_stringdata_CRectObj.data,
-      qt_meta_data_CRectObj,  qt_static_metacall, Q_NULLPTR, Q_NULLPTR}
+const QMetaObject CShape::staticMetaObject = {
+    { &QObject::staticMetaObject, qt_meta_stringdata_CShape.data,
+      qt_meta_data_CShape,  qt_static_metacall, Q_NULLPTR, Q_NULLPTR}
 };
 
 
-const QMetaObject *CRectObj::metaObject() const
+const QMetaObject *CShape::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
 }
 
-void *CRectObj::qt_metacast(const char *_clname)
+void *CShape::qt_metacast(const char *_clname)
 {
     if (!_clname) return Q_NULLPTR;
-    if (!strcmp(_clname, qt_meta_stringdata_CRectObj.stringdata0))
-        return static_cast<void*>(const_cast< CRectObj*>(this));
+    if (!strcmp(_clname, qt_meta_stringdata_CShape.stringdata0))
+        return static_cast<void*>(const_cast< CShape*>(this));
     return QObject::qt_metacast(_clname);
 }
 
-int CRectObj::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int CShape::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QObject::qt_metacall(_c, _id, _a);
     if (_id < 0)

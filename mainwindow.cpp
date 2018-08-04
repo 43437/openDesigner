@@ -1,54 +1,18 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QMessageBox>
-#include <QPen>
-#include <QBrush>
+#include "factory/cshapefactory.h"
 #include <QPainter>
-
-int MainWindow::iSEED = 0;
+#include <QPen>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_pDlgToolBox(0),
-    m_eEdtMode(eObject),
-    m_eButton(eNoBtn),
-    m_rectObj(0),
-    BAG_SIZE(4096)
+    m_dlgToolBox(this),
+    m_eToolBtn(DATADEFINEPUB::eToolBtnNone),
+    m_pCurrShape(0)
 {
-    memset(m_cBag, 0, 512);
     ui->setupUi(this);
-    m_callback = new CMainWindowCallback(this);
-
-    m_pDlgToolBox = new CToolBox();
-    m_pDlgToolBox->setEventCallback(m_callback);
-    createMenu();
-}
-
-void MainWindow::toolboxHandle(bool checked)
-{
-    if(checked)
-    {
-        m_pDlgToolBox->move(this->x(), this->geometry().y() + this->menuBar()->height());   //toolbox显示位置
-        m_pDlgToolBox->show();
-    }else
-    {
-        m_pDlgToolBox->hide();
-    }
-}
-
-void MainWindow::createMenu()
-{
-    connect(ui->actionToolbox, SIGNAL(triggered(bool)), this, SLOT(toolboxHandle(bool)));
-}
-
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-    if(NULL != m_pDlgToolBox)
-    {
-        delete m_pDlgToolBox;
-        m_pDlgToolBox = NULL;
-    }
+    init();
 }
 
 MainWindow::~MainWindow()
@@ -56,52 +20,71 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::OnMouseCursor(const DATADEFINEPUB::ETOOLBTN &eToolBtn)
+{
+    m_eToolBtn = eToolBtn;
+    switch(eToolBtn)
+    {
+    case DATADEFINEPUB::eToolBtnCursor:
+        this->setCursor(Qt::ArrowCursor);
+        break;
+    case DATADEFINEPUB::eToolBtnDraw:
+        this->setCursor(Qt::CrossCursor);
+        break;
+    case DATADEFINEPUB::eToolBtnSelect:
+        this->setCursor(Qt::ArrowCursor);
+        break;
+    case DATADEFINEPUB::eToolBtnMove:
+        this->setCursor(Qt::SizeAllCursor);
+    default:
+        break;
+    }
+}
+
 void MainWindow::paintEvent(QPaintEvent *event)
 {
-    QPainter painter(this);
-    QPen pen;
-    QBrush brush;
-
-    painter.setBrush(brush);
-    painter.setPen(pen);
-
-    for(std::map<int, CRectObj*>::iterator it=m_mapRectObjs.begin(); it!=m_mapRectObjs.end(); it++)
+    if(NULL != m_pCurrShape)
     {
-        painter.drawRect(it->second->getRect());
+        QPainter painter(this);
+        switch(m_eToolBtn)
+        {
+        case DATADEFINEPUB::eToolBtnSelect:
+        case DATADEFINEPUB::eToolBtnDraw:
+            m_pCurrShape->render(painter);
+            break;
+        default:
+            break;
+        }
     }
 
-    if(NULL != m_rectObj)
+    QPainter painter(this);
+    for(std::map<long, CShape*>::iterator it = m_mapShape.begin(); it != m_mapShape.end(); it++)
     {
-        painter.drawRect(m_rectObj->getRect());
+        it->second->render(painter);
     }
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
-    switch (event->button()) {
-    case Qt::LeftButton:
-        m_eButton = eLeftBtn;
-        switch(m_pDlgToolBox->getEditMode())
-        {
-        case eObject:
-            if(NULL == m_rectObj)
-            {
-                m_rectObj = new CRectObj();
-            }
-
-            m_rectObj->setTopLeft(event->pos());
-
-            break;
-        case eSelect:
-            break;
-        case eLine:
-            break;
-        default:
-            break;
-        }
+    if(NULL != m_pCurrShape)
+    {
+        delete m_pCurrShape;
+    }
+    switch(m_eToolBtn)
+    {
+    case DATADEFINEPUB::eToolBtnCursor:
         break;
-    case Qt::RightButton:
-        m_eButton = eRightBtn;
+    case DATADEFINEPUB::eToolBtnDraw:
+        m_pCurrShape = CShapeFactory::genShape(DATADEFINEPUB::eShapeSegment);
+        m_pCurrShape->setRect(QRect(event->pos(), event->pos()));
+        break;
+    case DATADEFINEPUB::eToolBtnSelect:
+        m_pCurrShape = CShapeFactory::genShape(DATADEFINEPUB::eShapeSelect);
+        m_pCurrShape->setRect(QRect(event->pos(), event->pos()));
+        break;
+    case DATADEFINEPUB::eToolBtnMove:
+        m_pCurrShape = CShapeFactory::genShape(DATADEFINEPUB::eDistance);
+        ((CDistance*)m_pCurrShape)->updatePos(event->pos(), event->pos());
         break;
     default:
         break;
@@ -110,155 +93,105 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
-    switch (m_eButton) {
-    case eLeftBtn:
-        switch(m_pDlgToolBox->getEditMode())
-        {
-        case eObject:
-            if(NULL == m_rectObj)
-            {
-                return;
-            }
-            m_rectObj->setBottomRight(event->pos());
-            repaint();
-
-            break;
-        case eSelect:
-            break;
-        case eLine:
-            break;
-        default:
-            break;
-        }
-
+    switch(m_eToolBtn)
+    {
+    case DATADEFINEPUB::eToolBtnCursor:
         break;
-    case eRightBtn:
-
+    case DATADEFINEPUB::eToolBtnDraw:
+    case DATADEFINEPUB::eToolBtnSelect:
+        m_pCurrShape->setRect(QRect(m_pCurrShape->getRect().topLeft(), event->pos()));
+        break;
+    case DATADEFINEPUB::eToolBtnMove:
+        ((CDistance*)m_pCurrShape)->updatePos(event->pos());
+        moveShape(((CDistance*)m_pCurrShape));
+        ((CDistance*)m_pCurrShape)->updatePos(event->pos(), event->pos());
         break;
     default:
         break;
+    }
+    repaint();
+}
+
+void MainWindow::moveShape(CDistance* distance)
+{
+    for(std::map<long, CShape*>::iterator it = m_mapShape.begin(); it != m_mapShape.end(); it++)
+    {
+        if(it->second->getIsSelected())
+        {
+            it->second->updatePos(distance->getDistance().first, distance->getDistance().second);
+        }
     }
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
-    switch(m_eButton)
+    QRect rect = QRect(0,0,0,0);
+    if(NULL != m_pCurrShape)
     {
-    case eLeftBtn:
-        switch (m_pDlgToolBox->getEditMode()) {
-        case eObject:
-            if(NULL == m_rectObj)
+        rect = m_pCurrShape->getRect();
+    }
+    switch(m_eToolBtn)
+    {
+    case DATADEFINEPUB::eToolBtnCursor:
+        break;
+    case DATADEFINEPUB::eToolBtnDraw:
+        if(rect.width() > VALID_SHAPE_SIZE && rect.height() > VALID_SHAPE_SIZE)
+        {
+            for(std::map<long, CShape*>::iterator it = m_mapShape.begin(); it != m_mapShape.end(); it++)
             {
-                return;
-            }
-            m_rectObj->setBottomRight(event->pos());
-
-            {
-                bool bIsValid = true;
-                int id = -1;
-
-                QRect rect = m_rectObj->getRect();
-                if(rect.width()>OBJ_MIN_SIZE && rect.height()>OBJ_MIN_SIZE)
+                if(it->second->isConflict(rect))
                 {
-                    for(std::map<int, CRectObj*>::iterator it = m_mapRectObjs.begin(); it != m_mapRectObjs.end(); it++)
-                    {
-                        if(m_rectObj->isConflict(it->second->getRect()))
-                        {
-                            bIsValid = false;
-                            break;
-                        }
-                    }
-                }else
-                {
-                    bIsValid = false;
-                }
-
-                if(bIsValid)
-                {
-                    id = genKey();
-                    if(id<0)
-                    {
-                        delete m_rectObj;
-                        m_rectObj = NULL;
-                        repaint();
-                        return;
-                    }
-                }else
-                {
-                    delete m_rectObj;
-                    m_rectObj = NULL;
+                    delete m_pCurrShape;
+                    m_pCurrShape = NULL;
                     repaint();
                     return;
                 }
-
-                m_mapRectObjs.insert(std::pair<int, CRectObj*>(id, m_rectObj));
-                m_rectObj = NULL;
             }
-            repaint();
-            break;
-
-        case eSelect:
-            break;
-        default:
-            break;
-        }
-
-
-        break;
-    case eRightBtn:
-        break;
-    default:
-        break;
-    }
-
-    m_eButton = eNoBtn;
-}
-
-int MainWindow::genKey()
-{
-    for(int i=0; i<BAG_SIZE; i++, iSEED++)
-    {
-        iSEED %= BAG_SIZE;
-        if (!(m_cBag[iSEED/8] & (1 << (iSEED%8))))
+            int id = CShapeIdGenerator::getInstance().genId();
+            if( id > 0 )
+            {
+                m_mapShape.insert(std::pair<long, CShape*>(id, m_pCurrShape));
+                m_pCurrShape = NULL;
+            }else
+            {
+                delete m_pCurrShape;
+                m_pCurrShape = NULL;
+            }
+        }else
         {
-            m_cBag[iSEED/8] |= (1 << (iSEED%8));
-            return iSEED;
+            delete m_pCurrShape;
+            m_pCurrShape = NULL;
         }
-    }
-
-    return -1;
-}
-
-void MainWindow::releaseKey(int key)
-{
-    if( key < 0 || key >= BAG_SIZE )
-    {
-        return;
-    }
-
-    m_cBag[key/8] &= (~(1 << (key%8)));
-}
-
-MainWindow::CMainWindowCallback::CMainWindowCallback(MainWindow* caller)
-{
-    this->caller = caller;
-}
-
-MainWindow::CMainWindowCallback::~CMainWindowCallback()
-{
-    ;
-}
-
-void MainWindow::CMainWindowCallback::CallBack() {
-    switch(caller->m_pDlgToolBox->getEditMode())
-    {
-    case eObject:
-    case eLine:
-        caller->setCursor(Qt::CrossCursor);
         break;
-    case eSelect:
+    case DATADEFINEPUB::eToolBtnSelect:
+        for(std::map<long, CShape*>::iterator it = m_mapShape.begin(); it != m_mapShape.end(); it++)
+        {
+            it->second->setSelected(rect);
+        }
+        delete m_pCurrShape;
+        m_pCurrShape = NULL;
+        break;
+    case DATADEFINEPUB::eToolBtnMove:
     default:
-        caller->setCursor(Qt::ArrowCursor);
+        delete m_pCurrShape;
+        m_pCurrShape = NULL;
         break;
+    }
+    repaint();
+}
+
+void MainWindow::init()
+{
+    connect(ui->actionToolbox, SIGNAL(triggered(bool)), this, SLOT(OnToolBoxEvent()));
+}
+
+void MainWindow::OnToolBoxEvent()
+{
+    if(ui->actionToolbox->isChecked())
+    {
+        m_dlgToolBox.show();
+    }else
+    {
+        m_dlgToolBox.hide();
     }
 }
